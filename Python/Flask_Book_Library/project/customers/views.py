@@ -1,7 +1,12 @@
+import re
+
 from flask import render_template, Blueprint, request, redirect, url_for, jsonify
 from project import db
 from project.customers.models import Customer
 
+
+# regex for customer names and city names validation
+names_city_regex = "^([a-zA-Z\u0080-\u024F]+(?:. |-| |'))*[a-zA-Z\u0080-\u024F]*$"
 
 # Blueprint for customers
 customers = Blueprint('customers', __name__, template_folder='templates', url_prefix='/customers')
@@ -32,6 +37,10 @@ def create_customer():
 
     # Validate the form data
     if 'name' not in data or 'city' not in data or 'age' not in data:
+        print('Invalid form data')
+        return jsonify({'error': 'Invalid form data'}), 400
+
+    if not re.fullmatch(names_city_regex, data['city']) or not re.fullmatch(names_city_regex, data['name']):
         print('Invalid form data')
         return jsonify({'error': 'Invalid form data'}), 400
 
